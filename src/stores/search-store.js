@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { searchRepositories } from '@/services/github-api';
+import { fetchMostStarredRepos } from '@/services/github-api';
 
 export const useSearchStore = defineStore('search', () => {
   const state = ref({
@@ -10,6 +10,8 @@ export const useSearchStore = defineStore('search', () => {
     repositories: {},
     isLoading: false,
     error: null,
+    currentPage: 1,
+    totalPages: 1,
   });
 
   const addLanguage = (language) => {
@@ -36,22 +38,46 @@ export const useSearchStore = defineStore('search', () => {
     minStars: state.value.minStars,
   }));
 
-  async function performSearch() {
+  async function performSearch(page = 1) {
     state.value.isLoading = true;
     state.value.error = null;
+    state.value.currentPage = page;
 
     try {
-      const results = await searchRepositories(searchParams.value);
-      state.value.repositories = results.reduce((acc, repo) => {
-        const lang = repo.language || 'Other';
-        if (!acc[lang]) acc[lang] = [];
-        acc[lang].push(repo);
-        return acc;
-      }, {});
+      const results = await fetchMostStarredRepos({
+        ...searchParams.value,
+        page: state.value.currentPage,
+      });
+
+      if (Array.isArray(results)) {
+        // Multi-language query results
+        state.value.repositories = results.reduce((acc, result) => {
+          acc[result.language] = result.repos;
+          return acc;
+        }, {});
+      } else {
+        // Single language query results
+        state.value.repositories = {
+          [state.value.selectedLanguages[0]]: results.repos
+        };
+        state.value.totalPages = Math.ceil(results.totalCount / 20); // 假设每页20条
+      }
     } catch (error) {
       state.value.error = error instanceof Error ? error.message : 'An error occurred';
     } finally {
       state.value.isLoading = false;
+    }
+  }
+
+  function nextPage() {
+    if (state.value.currentPage < state.value.totalPages) {
+      performSearch(state.value.currentPage + 1);
+    }
+  }
+
+  function previousPage() {
+    if (state.value.currentPage > 1) {
+      performSearch(state.value.currentPage - 1);
     }
   }
 
@@ -62,5 +88,7 @@ export const useSearchStore = defineStore('search', () => {
     setDateRange,
     setMinStars,
     performSearch,
+    nextPage,
+    previousPage,
   };
 });

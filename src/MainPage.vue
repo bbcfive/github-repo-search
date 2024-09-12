@@ -17,6 +17,14 @@ const dateRange = ref({ start: '', end: '' });
 const minStars = ref(100);
 
 const showDateRange = computed(() => dateRange.value.start && dateRange.value.end);
+
+const formatDate = (date) => {
+  const nextDay = new Date(date).getTime() + 86400000; // Add one day (86400000 milliseconds)
+  const nextYear = new Date(nextDay).getFullYear();
+  const nextMonth = String(new Date(nextDay).getMonth() + 1).padStart(2, '0');
+  const nextDayOfMonth = String(new Date(nextDay).getDate()).padStart(2, '0');
+  return `${nextYear}-${nextMonth}-${nextDayOfMonth}`;
+}
 </script>
 
 <template>
@@ -40,7 +48,7 @@ const showDateRange = computed(() => dateRange.value.start && dateRange.value.en
       <h1 class="text-2xl font-bold mb-4">
         GitHub repositories
         <template v-if="showDateRange">
-          between {{ dateRange.start }} and {{ dateRange.end }}
+          between {{ formatDate(dateRange.start) }} and {{ formatDate(dateRange.end) }}
         </template>
         with at least {{ minStars }} stars
       </h1>

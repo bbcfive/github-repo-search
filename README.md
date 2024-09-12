@@ -2,6 +2,9 @@
 
 A Vue.js application for searching GitHub repositories.
 
+## Preview
+https://github-repo-search-plum.vercel.app/
+
 ## How to Start the Project
 
 1. Clone the repository:
