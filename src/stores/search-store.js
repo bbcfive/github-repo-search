@@ -10,8 +10,10 @@ export const useSearchStore = defineStore('search', () => {
     repositories: {},
     isLoading: false,
     error: null,
-    currentPage: 1,
+    currentPage: 0,
     totalPages: 1,
+    lastSearchParams: null,
+    hasMoreData: false,
   });
 
   const addLanguage = (language) => {
@@ -42,6 +44,7 @@ export const useSearchStore = defineStore('search', () => {
     state.value.isLoading = true;
     state.value.error = null;
     state.value.currentPage = page;
+    state.value.lastSearchParams = { ...searchParams.value };
 
     try {
       const results = await fetchMostStarredRepos({
@@ -51,22 +54,54 @@ export const useSearchStore = defineStore('search', () => {
 
       if (Array.isArray(results)) {
         // Multi-language query results
-        state.value.repositories = results.reduce((acc, result) => {
-          acc[result.language] = result.repos;
-          return acc;
-        }, {});
+        if (page === 1) {
+          state.value.repositories = results.reduce((acc, result) => {
+            acc[result.language] = result.repos;
+            return acc;
+          }, {});
+        } else {
+          const newRepositories = { ...state.value.repositories };
+          results.forEach(result => {
+            if (newRepositories[result.language]) {
+              newRepositories[result.language] = [
+                ...newRepositories[result.language],
+                ...result.repos
+              ];
+            } else {
+              newRepositories[result.language] = result.repos;
+            }
+          });
+          state.value.repositories = newRepositories;
+        }
       } else {
         // Single language query results
-        state.value.repositories = {
-          [state.value.selectedLanguages[0]]: results.repos
-        };
+        const language = state.value.selectedLanguages[0];
+        if (page === 1) {
+          state.value.repositories = {
+            [language]: results.repos
+          };
+        } else {
+          const newRepositories = { ...state.value.repositories };
+          newRepositories[language] = [
+            ...(newRepositories[language] || []),
+            ...results.repos
+          ];
+          state.value.repositories = newRepositories;
+        }
         state.value.totalPages = Math.ceil(results.totalCount / 20); // 假设每页20条
       }
+      state.value.hasMoreData = state.value.currentPage < state.value.totalPages;
     } catch (error) {
       state.value.error = error instanceof Error ? error.message : 'An error occurred';
     } finally {
       state.value.isLoading = false;
     }
+  }
+
+  async function loadMoreRepositories() {
+    if (state.value.currentPage >= state.value.totalPages) return;
+    
+    await performSearch(state.value.currentPage + 1);
   }
 
   function nextPage() {
@@ -90,5 +125,6 @@ export const useSearchStore = defineStore('search', () => {
     performSearch,
     nextPage,
     previousPage,
+    loadMoreRepositories,
   };
 });
