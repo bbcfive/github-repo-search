@@ -52,7 +52,7 @@ A Vue.js application for searching GitHub repositories.
   │ │ └── github-api.js
   │ ├── stores/
   │ │ └── search-store.js
-  │ ├── App.vue
+  │ ├── MainPage.vue
   │ └── main.js
   ├── .gitignore
   ├── babel.config.js
@@ -63,7 +63,7 @@ A Vue.js application for searching GitHub repositories.
 
 ## Component Introduction
 
-1. `App.vue`: The main component of the application, containing the overall layout.
+1. `MainPage.vue`: The main component of the application, containing the overall layout.
 
 2. `RepositorySearch.vue`: Search component that allows users to input keywords to search for GitHub repositories.
 
