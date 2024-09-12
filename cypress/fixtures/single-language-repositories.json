@@ -1,0 +1,6 @@
+{
+  "items": [
+    {"id": 1, "name": "JS Repo 1", "description": "First JavaScript repo", "stargazers_count": 100, "language": "JavaScript"},
+    {"id": 2, "name": "JS Repo 2", "description": "Second JavaScript repo", "stargazers_count": 200, "language": "JavaScript"}
+  ]
+}
