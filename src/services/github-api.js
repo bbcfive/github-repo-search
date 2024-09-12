@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const GITHUB_API_URL = 'https://api.github.com/search/repositories';
-const PER_PAGE = 100;
+const PER_PAGE = 20;
 
 export async function fetchMostStarredRepos({ language, dateRange, minStars, page = 1 }) {
   const languages = language.split(',').filter(lang => lang.trim() !== '');
