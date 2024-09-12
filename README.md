@@ -35,6 +35,7 @@ A Vue.js application for searching GitHub repositories.
   ```
 
 ## Directory Structure
+```
   github-repo-search/
   ├── public/
   │ └── index.html
@@ -57,6 +58,7 @@ A Vue.js application for searching GitHub repositories.
   ├── babel.config.js
   ├── package.json
   └── README.md
+```
 
 
 ## Component Introduction
